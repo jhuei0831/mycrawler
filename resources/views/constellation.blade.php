@@ -4,35 +4,31 @@
 @endphp
 @extends('app')
 @section('content')
-    {{-- @php
+    @php
         // foreach ($constellations as $key => $value) {
         //     echo $value->constellation;
         // }
-        print_r($constellations);
-    @endphp --}}
+        // print_r($datas);
+    @endphp
     <div class="container">
         <table class="table table-light">
-            @for ($i = 0; $i < 12; $i++)
+            @foreach ($datas as $data)
                 <thead class="thead-light">
                     <tr>
-                        <th>{!! $constellations[$i]->constellation !!}</th>
+                        <th>Date</th>
+                        <th>{!! $data->constellation !!}</th>
                     </tr>                
                 </thead>
                 <tbody>
-                    @foreach ($data as $key => $item)
-                        @if (($key+1) % 4 == 0)
-                            <tr>
-                                <td>{!! $item->fortune !!}</td>
-                            </tr>
-                            @break
-                        @else                           
-                            <tr>
-                                <td>{!! $item->fortune !!}</td>
-                            </tr>   
-                        @endif                           
-                    @endforeach               
-                </tbody>    
-            @endfor           
+                    @for ($i = 0; $i < count(json_decode($data->fortune)); $i++)
+                        <tr>
+                            {{-- <td>{{ \Carbon\Carbon::now()->format('m/d') }}</td> --}}
+                            <td>{{ $data->date }}</td>
+                            <td>{!! json_decode($data->fortune)[$i] !!}</td>
+                        </tr>
+                    @endfor
+                </tbody>  
+            @endforeach          
         </table>
     </div>
 @endsection

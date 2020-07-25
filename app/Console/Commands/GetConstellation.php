@@ -43,17 +43,29 @@ class GetConstellation extends Command
         $client = new Client();
         $constellations = array();
         $data = array();
+        $day = array();
         // DB::beginTransaction('constellation');
         for ($i = 0; $i < 12; $i++) {
             $crawler = $client->request('GET', "https://astro.click108.com.tw/daily_$i.php?iAstro=$i");
-            $crawler->filter('.TODAY_CONTENT')->each(function ($contact) use (&$data, &$constellations) {
+            $crawler->filter('.MONTH img')->each(function ($node) use (&$day) {
+                $month = $node->attr('src');
+                array_push($day, (Str::substr($month, -5, 1)));
+            });
+            $crawler->filter('.DATE img')->each(function ($node) use (&$day) {
+                $date = $node->attr('src');
+                array_push($day, (Str::substr($date, -5, 1)));
+            });
+            // echo implode("", $day);
+
+            $crawler->filter('.TODAY_CONTENT')->each(function ($contact) use (&$data, &$constellations, &$day) {
                 $constellation = $contact->filter('h3')->html();
                 // echo($contact->filter('h3')->html().'<br>');
                 for ($i = 0; $i < 8; $i += 2) {
                     $data[] = $contact->filter('p')->eq($i)->html();
                 }             
-                DB::table('constellation')->insert(['constellation' => Str::substr($constellation, 2, 3), 'fortune' => json_encode($data)]);
+                DB::table('constellation')->insert(['date' => implode("", $day),'constellation' => Str::substr($constellation, 2, 3), 'fortune' => json_encode($data)]);
                 $data = [];
+                $day = [];
             });           
         }
     }

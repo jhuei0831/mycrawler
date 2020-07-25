@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
 use Goutte\Client;
 
 class CrawlerController extends Controller
@@ -17,23 +19,27 @@ class CrawlerController extends Controller
     public function index()
     {
         $constellations = DB::table('constellation')->select('constellation')->get()->toArray();
-        $data = DB::table('constellation')->select('fortune')->get();
-        // $client = new Client();
-        // $constellations = array();
-        // $data = array();
-        // for ($i=0; $i < 12; $i++) {
-        //     $crawler = $client->request('GET', "https://astro.click108.com.tw/daily_$i.php?iAstro=$i");
-        //     $crawler->filter('.TODAY_CONTENT')->each(function($contact) use (&$data,&$constellations){
-        //         $constellations[] = $contact->filter('h3')->html();
-        //         // echo($contact->filter('h3')->html().'<br>');
-        //         for ($i=0; $i < 8; $i+=2) {
-        //             $data[] = $contact->filter('p')->eq($i)->html();
-        //             $links = $contact->filter('p')->eq($i);
-        //             // echo($links->html().'<br>');
-        //         }
-        //     });
-        // }
-        return view('constellation',compact('constellations','data'));
+        $datas = DB::table('constellation')->get();
+        $client = new Client();
+        $day = array();
+        $crawler = $client->request('GET', "https://astro.click108.com.tw/daily_10.php?iAstro=10");
+        $crawler->filter('.MONTH img')->each(function ($node) use (&$day){
+            $month = $node->attr('src');
+            array_push($day, (Str::substr($month, -5, 1)));
+            // echo Str::substr($month, -5, 1) . '<br>';
+        });
+        $crawler->filter('.DATE img')->each(function ($node) use (&$day){
+            $date = $node->attr('src');
+            array_push($day, (Str::substr($date, -5, 1)));
+            // echo Str::substr($date, -5, 1) . '<br>';
+        });
+        echo implode("", $day);
+
+        // print_r($day);
+
+        // $yoo = $crawler->filter('.MONTH img')->attr('src');
+        // dd($yoo);
+        return view('constellation',compact('constellations','datas'));
 
         // $crawler = $client->request('GET', 'https://astro.click108.com.tw/');
         // $crawler->filter('.STAR12_BOX ul')->each(function($contact){
