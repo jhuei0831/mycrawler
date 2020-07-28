@@ -28,12 +28,15 @@ class CrawlerController extends Controller
             array_push($day, (Str::substr($month, -5, 1)));
             // echo Str::substr($month, -5, 1) . '<br>';
         });
+        $month = implode("", $day);
+        $day = array();
         $crawler->filter('.DATE img')->each(function ($node) use (&$day){
             $date = $node->attr('src');
             array_push($day, (Str::substr($date, -5, 1)));
             // echo Str::substr($date, -5, 1) . '<br>';
         });
-        echo implode("", $day);
+        $date = implode("", $day);
+        echo date('Y').'/'.$month.'/'.$date;
 
         // print_r($day);
 

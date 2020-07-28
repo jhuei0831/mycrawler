@@ -51,21 +51,24 @@ class GetConstellation extends Command
                 $month = $node->attr('src');
                 array_push($day, (Str::substr($month, -5, 1)));
             });
+            $month = implode("", $day);
+            $day = array();
+
             $crawler->filter('.DATE img')->each(function ($node) use (&$day) {
                 $date = $node->attr('src');
                 array_push($day, (Str::substr($date, -5, 1)));
             });
-            // echo implode("", $day);
+            $date = implode("", $day);
+            $day = array();
 
-            $crawler->filter('.TODAY_CONTENT')->each(function ($contact) use (&$data, &$constellations, &$day) {
+            $crawler->filter('.TODAY_CONTENT')->each(function ($contact) use (&$data, &$constellations, &$month, &$date) {
                 $constellation = $contact->filter('h3')->html();
                 // echo($contact->filter('h3')->html().'<br>');
                 for ($i = 0; $i < 8; $i += 2) {
                     $data[] = $contact->filter('p')->eq($i)->html();
                 }             
-                DB::table('constellation')->insert(['date' => implode("", $day),'constellation' => Str::substr($constellation, 2, 3), 'fortune' => json_encode($data)]);
+                DB::table('constellation')->insert(['date' => date('Y').'/'.$month.'/'.$date, 'constellation' => Str::substr($constellation, 2, 3), 'fortune' => json_encode($data), 'created_at' => \Carbon\Carbon::now()]);
                 $data = [];
-                $day = [];
             });           
         }
     }
